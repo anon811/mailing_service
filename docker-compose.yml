@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis
+    restart: always
+  
+  webapp:
+    restart: always
+    build: ./src
+    ports:
+      - 8000:8000
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./src:/usr/src/app/
+    environment:
+      - TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODIxNjA5MzQsImlzcyI6ImZhYnJpcXVlIiwibmFtZSI6ImFub244MTEifQ.mzOEsu_JsAcuIt0RTP6UDPL7_G2UJY2x_ro8LcMYo1g
+      - URL=https://probe.fbrq.cloud/v1/send/
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+  
+  celery:
+    restart: always
+    build: ./src
+    command: celery -A api worker --loglevel=INFO
+    volumes:
+      - ./src:/usr/src/app/
+    environment:
+      - TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODIxNjA5MzQsImlzcyI6ImZhYnJpcXVlIiwibmFtZSI6ImFub244MTEifQ.mzOEsu_JsAcuIt0RTP6UDPL7_G2UJY2x_ro8LcMYo1g
+      - URL=https://probe.fbrq.cloud/v1/send/
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - webapp
+      - redis
+  
+  
+  dashboard:
+    build: ./src
+    command:  celery flower -A api --port=5555 --broker=redis://redis:6379/0
+    ports:
+      - 5555:5555
+    environment:
+      - TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODIxNjA5MzQsImlzcyI6ImZhYnJpcXVlIiwibmFtZSI6ImFub244MTEifQ.mzOEsu_JsAcuIt0RTP6UDPL7_G2UJY2x_ro8LcMYo1g
+      - URL=https://probe.fbrq.cloud/v1/send/
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - webapp
+      - redis
+      - celery
+
+
