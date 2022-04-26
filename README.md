@@ -14,7 +14,7 @@ django-celery-beat позволяет из панели администрато
   
   Находясь в корневой папке выполнить команду 
     
-    docker-compose up --build.
+    docker-compose up --build
   
   API проекта достуано по адресу 
   
