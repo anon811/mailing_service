@@ -16,7 +16,7 @@ django-celery-beat позволяет из панели администрато
     
     docker-compose up --build
   
-  API проекта достуано по адресу 
+  API проекта доступно по адресу 
   
     http//localhost:8000/api/
     
